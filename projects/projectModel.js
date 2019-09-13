@@ -9,6 +9,11 @@ module.exports = {
 
 function getProjects() {
     return db("projects")
+        .select(
+            "project_name as Project Name",
+            "project_description as Project Description",
+            "completed as Completed?"
+        )
 }
 
 function getProjectById(id) {

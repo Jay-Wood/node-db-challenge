@@ -14,17 +14,30 @@ function intToBoolean(int) {
     return int === 1 ? true : false;
 }
 
-function getProjects() {
-    return db("projects")
-        .then(projects => {
-            return projects.map(project => {
-                let result = {
+function getProjects(id) {
+    let query = db("projects")
+
+    if(id) {
+        return query.where("id", id).first()
+        .then(project => {
+            let result = {
                     ...project, 
                     completed: intToBoolean(project.completed)
                 }
                 return result;
-            })
         })
+    } else {
+        return query
+            .then(projects => {
+                return projects.map(project => {
+                    let result = {
+                        ...project, 
+                        completed: intToBoolean(project.completed)
+                    }
+                    return result;
+                })
+            })
+    }
 }
 
 function getProjectById(id) {

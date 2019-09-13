@@ -40,6 +40,25 @@ function getProjects(id) {
     }
 }
 
+function getTasks(id) {
+
+    return db("projects")
+        .join("tasks", "projects.id", "tasks.project_id")
+        // .select("projects.project_name", "projects.project_description", "tasks.description", "tasks.completed", "tasks.notes")
+        .where("project_id", id)
+        .then(tasks => {
+            return tasks.map(task => {
+                let result = {
+                    ...task, 
+                    completed: intToBoolean(task.completed)
+                }
+                return result;
+            })
+        })
+    
+}
+
+
 function getProjectById(id) {
     return db("projects")
         .where("id", id)
@@ -52,12 +71,6 @@ function addProject(newProj) {
         .then(([id]) => this.getProjectById(id));
 }
 
-function getTasks(id) {
-    return db("projects")
-        .join("tasks", "projects.id", "tasks.project_id")
-        .select("projects.project_name", "projects.project_description", "tasks.description", "tasks.completed", "tasks.notes")
-        .where("project_id", id)
-}
 
 function getTaskByTaskId(task_id) {
     return db("tasks")

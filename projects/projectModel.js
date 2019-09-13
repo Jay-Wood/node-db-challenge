@@ -1,19 +1,30 @@
 const db = require("../data/dbConfig.js");
+const mappers = require("../data/mappers.js")
+
 
 module.exports = {
     getProjects,
     getProjectById,
-    addProject
+    addProject,
+    getTasks,
+    addTask, 
 }
 
+function intToBoolean(int) {
+    return int === 1 ? true : false;
+}
 
 function getProjects() {
     return db("projects")
-        .select(
-            "project_name as Project Name",
-            "project_description as Project Description",
-            "completed as Completed?"
-        )
+        .then(projects => {
+            return projects.map(project => {
+                let result = {
+                    ...project, 
+                    completed: intToBoolean(project.completed)
+                }
+                return result;
+            })
+        })
 }
 
 function getProjectById(id) {
@@ -26,4 +37,25 @@ function addProject(newProj) {
     return db("projects")
         .insert(newProj)
         .then(([id]) => this.getProjectById(id));
+}
+
+function getTasks(id) {
+    return db("projects")
+        .join("tasks", "projects.id", "tasks.project_id")
+        .select("projects.project_name", "projects.project_description", "tasks.description", "tasks.completed", "tasks.notes")
+        .where("project_id", id)
+}
+
+function getTaskByTaskId(task_id) {
+    return db("tasks")
+        .where("id", task_id)
+}
+
+function addTask(newTask, project_id) {
+    return db("tasks")
+        .insert(newTask)
+        .where("project_id", project_id)
+        .then( id => {
+            return getTaskByTaskId(id)
+        })
 }

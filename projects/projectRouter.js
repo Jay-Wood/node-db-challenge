@@ -39,9 +39,39 @@ router.post("/", (req, res) => {
         .catch( () => {
             res.status(500).json({error: "There was an error posting this project to the database."})
         })
-
 })
 
+router.get("/:id/tasks", (req, res) => {
+    const id = req.params.id;
+    projects.getTasks(id)
+    .then(list => {
+        res.status(200).json(list)
+    })
+    .catch(err => {
+        res.status(500).json({message: "Failed to retrieve tasks from server"})
+    })
+})
+
+router.post("/:id/tasks", (req, res) => {
+    const id = req.params.id;
+    const newTask = req.body;
+
+    projects.getProjectById(id)
+    .then(project => {
+        if(project) {
+            projects.addTask(newTask, id)
+            .then(updatedTask => {
+                res.json(updatedTask)
+            }) 
+        } else {
+            res.status(404).json({message: "Could not find a project with that ID."})
+        }
+    }) 
+    .catch (err => {
+        res.status(500).json({ message: 'Failed to update project tasks' });
+      });
+    
+})
 
 
 module.exports = router;
